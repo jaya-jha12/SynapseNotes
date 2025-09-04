@@ -2,6 +2,7 @@ import { FeatureCard } from '../components/FeatureCard';
 import { BrainCircuit, BookOpen, Camera, Compass } from 'lucide-react';
 import type { LucideProps } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
+import { ContactUs } from '../components/ContactUs';
 
 const featuresData: {
   title: string;
@@ -65,7 +66,7 @@ export const Landing = () => {
 
   return (
     <div className="bg-black">
-        <div className="relative flex h-screen bg-black text-white overflow-hidden">
+        <div id="home" className="relative flex h-screen bg-black text-white overflow-hidden">
         {/* Left side content */}
         <div className="flex flex-col justify-center items-start w-1/2 px-12 z-10">
           <h1 className="text-5xl font-bold mb-6">Take Smarter Notes with <span className="block text-center bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-200 bg-clip-text text-transparent pb-5 font-serif">Synapse Notes</span></h1>
@@ -161,6 +162,7 @@ export const Landing = () => {
         </div>
       </div>
     </section>
+    <ContactUs />
     </div>
     
   );

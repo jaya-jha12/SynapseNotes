@@ -1,6 +1,6 @@
 import { Link as ScrollLink } from "react-scroll";
 import { Link } from "react-router-dom";
-import { Home, Info, Phone, LogIn, Rocket } from "lucide-react";
+import { Home,  Phone, LogIn, Rocket,Star } from "lucide-react";
 
 
 export const Navbar=()=>{
@@ -18,14 +18,14 @@ export const Navbar=()=>{
                 </ScrollLink>
 
                 <ScrollLink
-                to="about"
+                to="feature"
                 smooth={true}
                 duration={500}
                 offset={-70}
                 className="flex items-center space-x-2 hover:text-pink-300 cursor-pointer"
                 >
-                <Info size={18} />
-                <span>About Us</span>
+                <Star size={18} />
+                <span>Features</span>
                 </ScrollLink>
 
                 <ScrollLink

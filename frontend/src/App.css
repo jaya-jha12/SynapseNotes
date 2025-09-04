@@ -1,41 +1,7 @@
 @import "tailwindcss";
 
-/* app.css */
 
-/* Base background for the hero section with a subtle radial gradient */
-.gradient-hero {
-  background-color: #0f172a; /* A dark slate blue */
-  background-image: radial-gradient(at 50% 0%, rgba(30, 58, 138, 0.25) 0%, transparent 70%),
-                    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                    radial-gradient(at 100% 100%, rgba(196, 181, 253, 0.1) 0%, transparent 60%);
-  color: #f8fafc; /* Light text color */
-  position: relative; /* Needed for positioning the static circles */
-  overflow: hidden; /* Ensures circles don't spill out */
-}
 
-/* Static background circles for the starry/bubbly effect */
-.bg-circle {
-  position: absolute;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.05); /* Semi-transparent white */
-  opacity: 0.5;
-  filter: blur(2px);
-  animation: pulse-opacity 8s ease-in-out infinite alternate;
-}
-
-/* Specific positions and sizes for the static background circles */
-.bg-circle-1 { top: 10%; left: 5%; width: 40px; height: 40px; }
-.bg-circle-2 { top: 20%; right: 15%; width: 60px; height: 60px; animation-delay: 1s; }
-.bg-circle-3 { bottom: 5%; left: 20%; width: 30px; height: 30px; animation-delay: 2s; }
-.bg-circle-4 { bottom: 15%; right: 5%; width: 50px; height: 50px; animation-delay: 3s; }
-.bg-circle-5 { top: 50%; left: 40%; width: 70px; height: 70px; animation-delay: 0.5s; }
-.bg-circle-6 { top: 30%; left: 25%; width: 25px; height: 25px; animation-delay: 2.5s; }
-.bg-circle-7 { bottom: 30%; right: 30%; width: 45px; height: 45px; animation-delay: 1.5s; }
-.bg-circle-8 { top: 60%; right: 50%; width: 35px; height: 35px; animation-delay: 3.5s; }
-.bg-circle-9 { top: 70%; right: 300%; width: 5px; height: 35px; animation-delay: 3.5s; }
-.bg-circle-10 { top: 50%; right: 80%; width: 20px; height: 35px; animation-delay: 3.5s; }
-.bg-circle-11 { top: 60%; right: 200%; width: 85px; height: 35px; animation-delay: 3.5s; }
-/* ... add more circles as needed for density ... */
 
 
 /* Keyframes for the slow jumping/floating animation */
@@ -44,33 +10,7 @@
   50% { transform: translateY(-20px); }
   100% { transform: translateY(0px); }
 }
-
-/* Keyframes for the subtle pulsing opacity of static circles */
-@keyframes pulse-opacity {
-  0% { opacity: 0.1; }
-  100% { opacity: 0.3; }
-}
-
 /* Apply the floating animation to specific elements */
 .animate-float {
   animation: float 6s ease-in-out infinite;
-}
-
-/* Glow effects for the floating orbs and buttons */
-.glow-blue { box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); }
-.glow-peach { box-shadow: 0 0 40px rgba(255, 179, 128, 0.4); }
-.glow-lavender { box-shadow: 0 0 40px rgba(196, 181, 253, 0.5); }
-.glow-mint { box-shadow: 0 0 40px rgba(167, 243, 208, 0.4); }
-
-/* Gradient for the "AI" text */
-.gradient-accent {
-  background: linear-gradient(to right, #60a5fa, #a78bfa); /* Blue to Purple gradient */
-}
-
-/* Glassmorphism effect for cards and outline buttons */
-.glass-card {
-  background-color: rgba(30, 41, 59, 0.5); /* Semi-transparent dark slate */
-  backdrop-filter: blur(10px); /* Blur effect */
-  border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.1); /* Subtle white border */
 }
