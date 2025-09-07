@@ -89,18 +89,18 @@ export const Landing = () => {
         <div className="relative flex justify-center items-center w-1/2">
           {/* Main spotlight cone */}
           <div className="absolute top-0 h-[900px] w-[1000px] 
-                          bg-gradient-to-b from-pink-300/40 via-pink-200/15 to-transparent 
+                          bg-gradient-to-b from-purple-300/40 via-purple-200/15 to-transparent 
                           blur-[160px] 
                           [clip-path:polygon(50%_0%,0%_100%,100%_100%)]"></div>
 
           {/* Soft radial glow at source */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 
                           w-[180px] h-[180px] 
-                          bg-pink-400/40 rounded-full blur-[100px]"></div>
+                          bg-purple-400/40 rounded-full blur-[100px]"></div>
 
           {/* Glow on floor */}
           <div className="absolute bottom-10 w-[380px] h-[140px] 
-                          bg-pink-300/20 rounded-full blur-[120px]"></div>
+                          bg-purple-300/20 rounded-full blur-[120px]"></div>
 
           {/* Images */}
           <div className="relative z-10 flex flex-col items-center space-y-10">

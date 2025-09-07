@@ -1,11 +1,11 @@
 import { Link as ScrollLink } from "react-scroll";
 import { Link } from "react-router-dom";
-import { Home,  Phone, LogIn, Rocket,Star } from "lucide-react";
+import { Home,  Phone, LogIn, Rocket,Star,BookOpen } from "lucide-react";
 
 
 export const Navbar=()=>{
     return (
-        <nav className="fixed top-0 left-0 z-50 flex items-center justify-between px-10 py-2 bg-white/10 backdrop-blur-md rounded-xl text-white shadow-md w-full">
+        <header className="fixed top-0 left-0 z-50 flex items-center justify-between px-10 py-1 bg-white/10 backdrop-blur-md rounded-xl text-white shadow-md w-full">
             <div className="flex  items-center ">
                 <img src='./logo.png' alt='logo' className="pr-3 h-15 w-15"/>
                 <span className="text-2xl font-semibold font-serif ">Synapse Notes</span>
@@ -38,6 +38,11 @@ export const Navbar=()=>{
                 <Phone size={18} />
                 <span>Contact Us</span>
                 </ScrollLink>
+                <Link to='/mynotes'
+                className="flex items-center space-x-2 hover:text-pink-300 cursor-pointer">
+                    <BookOpen size={18}/>
+                    <span>My Notes</span>
+                </Link>
             </div>
 
             {/* Route Navigation Buttons */}
@@ -58,6 +63,6 @@ export const Navbar=()=>{
                 <span>Get Started</span>
                 </Link>
             </div>
-        </nav>
+        </header>
     )
 }
