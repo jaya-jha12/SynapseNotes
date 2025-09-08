@@ -1,6 +1,8 @@
 import React, { useState, forwardRef, createContext, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
+import { ChatbotSidebar } from "../components/ChatbotSidebar";
+import { MessageCircle } from "lucide-react";
 
 // --- TYPE DEFINITIONS ---
 type FCC<P = {}> = React.FC<React.PropsWithChildren<P>>;
@@ -48,7 +50,7 @@ const Underline: FCC<IconProps> = (props) => <Icon {...props}><path d="M6 3v7a6 
 const Code: FCC<IconProps> = (props) => <Icon {...props}><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></Icon>;
 const List: FCC<IconProps> = (props) => <Icon {...props}><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></Icon>;
 const ListOrdered: FCC<IconProps> = (props) => <Icon {...props}><line x1="10" x2="21" y1="6" y2="6"/><line x1="10" x2="21" y1="12" y2="12"/><line x1="10" x2="21" y1="18" y2="18"/><path d="M4 6h1v4"/><path d="m2 12 3-3 3 3"/><path d="M5 18H3l2-2 2 2Z"/></Icon>;
-const Home: FCC<IconProps> = (props) => <Icon {...props}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></Icon>;
+
 
 // --- UI COMPONENTS (replaces shadcn/ui) ---
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -128,6 +130,7 @@ export const NoteEditor = () => {
     const [content, setContent] = useState('');
     const [activeTab, setActiveTab] = useState('write');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [open, setOpen] = useState(false);
     const navigate=useNavigate();
 
     const sidebarItems = [
@@ -218,7 +221,7 @@ export const NoteEditor = () => {
 
             <div className="flex h-[calc(100vh-69px)]">
                 {/* Left Sidebar */}
-                <div className="w-64 border-r border-slate-800 bg-slate-950/50">
+                <div className="w-64 border-r border-slate-800 bg-slate-950/50 min-h-full ">
                     <div className="p-6 space-y-4">
                         <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">AI Tools</h2>
                         {sidebarItems.map((item, index) => (
@@ -233,10 +236,21 @@ export const NoteEditor = () => {
                             </Button>
                         ))}
                     </div>
+                    <div className="mt-6">
+                        <button
+                          onClick={() => setOpen(true)}
+                          className="fixed bottom-6 right-6 p-4 rounded-full bg-purple-600 text-white shadow-lg hover:bg-purple-700 transition"
+                        >
+                          <MessageCircle className="h-6 w-6" />
+                        </button>
+
+                        {/* Chatbot Sidebar */}
+                        <ChatbotSidebar isOpen={open} onClose={() => setOpen(false)} />
+                    </div>
                 </div>
 
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col p-6 overflow-y-auto">
+                <main className="flex-1 flex flex-col p-6 overflow-y-auto bg-[#020617] bg-[radial-gradient(ellipse_at_top,_#2d0d4a,_transparent_70%),radial-gradient(ellipse_at_bottom,_#1a0b2e,_transparent_80%)]">
                     <div className="space-y-6">
                         {/* Title Input */}
                         <div className="space-y-2">
