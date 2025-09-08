@@ -1,6 +1,6 @@
 import React, { useState, forwardRef, createContext, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft,Heading1,Heading2,Heading3 } from "lucide-react";
 import { ChatbotSidebar } from "../components/ChatbotSidebar";
 import { MessageCircle } from "lucide-react";
 
@@ -142,6 +142,9 @@ export const NoteEditor = () => {
     ];
 
     const formatButtons = [
+        { icon: Heading1, label: 'Heading 1', format: '# ' },
+        { icon: Heading2, label: 'Heading 2', format: '## ' },
+        { icon: Heading3, label: 'Heading 3', format: '### ' },
         { icon: Bold, label: 'Bold', format: '**' },
         { icon: Italic, label: 'Italic', format: '*' },
         { icon: Underline, label: 'Underline', format: '_' },
@@ -159,13 +162,33 @@ export const NoteEditor = () => {
         const end = textarea.selectionEnd;
         const selectedText = content.substring(start, end);
 
+        if (format.startsWith('#')) {
+            const lineStart = content.lastIndexOf('\n', start - 1) + 1;
+            const lineEnd = content.indexOf('\n', end) === -1 ? content.length : content.indexOf('\n', end);
+            const currentLine = content.substring(lineStart, lineEnd);
+            const trimmedLine = currentLine.trimStart();
+            
+            let newLine;
+            if (trimmedLine.startsWith(format)) {
+                newLine = trimmedLine.substring(format.length);
+            } else if (trimmedLine.match(/^#+ /)) {
+                newLine = trimmedLine.replace(/^#+ /, format);
+            } else {
+                newLine = format + currentLine;
+            }
+            const newContent = content.substring(0, lineStart) + newLine + content.substring(lineEnd);
+            setContent(newContent);
+            setTimeout(() => textarea.focus(), 0);
+            return;
+        }
+        
         let newText = '';
         if (format === '```') {
             newText = `\n${format}\n${selectedText}\n${format}\n`;
         } else if (format === '• ' || format === '1. ') {
-             const lines = selectedText.split('\n').map(line => line.trim() ? `${format}${line}`: line);
-             newText = lines.join('\n');
-             if (start === end) newText = format;
+            const lines = selectedText.split('\n').map(line => line.trim() ? `${format}${line}`: line);
+            newText = lines.join('\n');
+            if (start === end) newText = format;
         } else {
             newText = `${format}${selectedText}${format}`;
         }
@@ -173,10 +196,9 @@ export const NoteEditor = () => {
         const newContent = content.substring(0, start) + newText + content.substring(end);
         setContent(newContent);
 
-        // Refocus and adjust cursor position
         textarea.focus();
         setTimeout(() => {
-            if (format.length === 2) { // for ** and * and _
+            if (format.length === 2 && selectedText) {
                 textarea.setSelectionRange(start + 1, end + 1);
             } else {
                 textarea.setSelectionRange(start + newText.length, start + newText.length);
@@ -186,12 +208,12 @@ export const NoteEditor = () => {
     
     // --- Preview Rendering Logic ---
     const renderPreview = () => {
-        let previewContent = content
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+        let previewContent = content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         
         previewContent = previewContent
+            .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-4 mb-2">$1</h3>')
+            .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-6 mb-3 border-b border-slate-700 pb-2">$1</h2>')
+            .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mt-8 mb-4 border-b-2 border-slate-600 pb-3">$1</h1>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/_(.*?)_/g, '<u>$1</u>')
@@ -276,14 +298,14 @@ export const NoteEditor = () => {
                             <TabsContent value="write" className="space-y-4 mt-6">
                                 {/* Formatting Toolbar */}
                                   <div className="flex justify-center">
-                                    <div className="flex items-center justify-center space-x-1 p-2 bg-slate-900/80 rounded-lg border border-slate-800 w-80">
+                                    <div className="flex items-center justify-center space-x-1 p-2 bg-slate-900/80 rounded-lg border border-slate-800 w-100">
                                         {formatButtons.map((button) => (
                                             <Button
                                                 key={button.label}
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleFormat(button.format)}
-                                                className="h-10 w-10  p-0 text-slate-400 hover:bg-purple-500/20 hover:text-purple-300"
+                                                className="h-10 w-10 p-0 hover:bg-primary/20 hover:text-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
                                                 title={button.label}
                                             >
                                                 <button.icon className="h-4 w-4" />

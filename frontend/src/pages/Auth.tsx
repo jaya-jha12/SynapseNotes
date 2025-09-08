@@ -79,7 +79,7 @@ export const SignupSlider = () => {
                 />
                 <button
                   type="submit"
-                  className="w-full text-xl font-serif bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold transition"
+                  className="w-full text-xl font-serif bg-purple-500/80 hover:bg-purple-600/80 text-white py-3 rounded-lg font-semibold transition"
                 >
                   Sign Up
                 </button>
@@ -103,7 +103,7 @@ export const SignupSlider = () => {
                 />
                 <button
                   type="submit"
-                  className="w-full text-xl font-serif bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold transition"
+                  className="w-full text-xl font-serif bg-purple-500/80 hover:bg-purple-600/80 text-white py-3 rounded-lg font-semibold transition"
                 >
                   Sign In
                 </button>
