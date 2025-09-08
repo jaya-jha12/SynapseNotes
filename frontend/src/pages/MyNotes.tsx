@@ -1,130 +1,170 @@
-import React, { useState } from "react";
-import { FaPlus, FaFolder } from "react-icons/fa";
-import { BsFileEarmarkTextFill, BsChatDotsFill } from "react-icons/bs";
-import { ChatbotSidebar } from "../components/ChatbotSidebar";
+import React, { useState } from 'react';
+import { Folder, FileText, ChevronRight, Eye, Clock, Tag } from 'lucide-react';
 
-// --- Types ---
-interface Folder {
+// --- MOCK DATA ---
+// Data to populate the UI, mimicking the structure in the image.
+
+type FolderType = {
   name: string;
-  noteCount: number;
-}
+  subfolders?: FolderType[];
+};
 
-const initialFolders: Folder[] = [
-  { name: "Study Notes", noteCount: 5 },
-  { name: "Meeting Minutes", noteCount: 3 },
-  { name: "Project Alpha", noteCount: 12 },
+const folders: FolderType[] = [
+  { name: 'Notes', subfolders: [{ name: 'Sub Note 1' }, { name: 'Sub Note 2' }] },
+  { name: 'Moves' },
+  { name: 'Concar' },
+  { name: 'Foldcar' },
+  { name: 'Notes', subfolders: [{ name: 'Another Sub Note' }] },
+  { name: 'Idviduar' },
+  { name: 'Boips' },
+  { name: 'Commary' },
 ];
 
-// --- Sidebar Button Helper ---
-const SidebarButton: React.FC<{ icon: React.ReactNode; label: string; className?: string }> = ({
-  icon,
-  label,
-  className,
-}) => (
-  <button
-    className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium text-white rounded-lg bg-[#a66ac6] hover:bg-[#8b31bc] transition-colors duration-200 ${className}`}
-  >
-    {icon}
-    <span>{label}</span>
-  </button>
-);
+type ItemType = {
+    id: number;
+    type: 'note' | 'folder';
+    title: string;
+    content?: string;
+    color: 'dark-purple' | 'dark-blue';
+    views?: string;
+    time?: string;
+    tagCount?: number;
+};
 
-// --- Sidebar Component ---
-const Sidebar: React.FC<{
-  folders: Folder[];
-  selectedFolder: string;
-  onSelectFolder: (name: string) => void;
-}> = ({ folders, selectedFolder, onSelectFolder }) => (
-  <aside className="w-[280px] min-w-[280px] bg-[#63178b] p-6 flex flex-col border-r border-gray-700/50">
-    <div className="mt-auto">
-      <SidebarButton icon={<FaPlus />} label="New Folder" className="mb-3" />
-      <SidebarButton icon={<FaPlus />} label="New Note" />
-    </div>
+const items: ItemType[] = [
+    { id: 1, type: 'note', title: 'Note', content: 'Your your notes elit eexod allplain odi tosiet...', color: 'dark-blue', views: '5k' },
+    { id: 2, type: 'note', title: 'Tinteite', content: 'Anell note sintes alialisum uitem', color: 'dark-blue', views: '4k' },
+    { id: 3, type: 'folder', title: 'Note', content: 'Loen nour vintes sit yard alplonenes.', color: 'dark-purple', views: '31k' },
+    { id: 4, type: 'note', title: 'Tolledies', content: 'Theaiakmyourions estent mrditom...', color: 'dark-blue', views: '5k', tagCount: 3 },
+    { id: 5, type: 'note', title: 'Sily Nise', content: 'Your your note alipictet. eolideuryoe tionot rosiet...', color: 'dark-blue', views: '71k', time: '20m' },
+    { id: 6, type: 'note', title: 'Follets', content: 'Lastl note of your greerend mnameri orit...', color: 'dark-blue', views: '5k', tagCount: 6 },
+];
 
-    {/* Folders List */}
-    <div className="flex-grow overflow-y-auto">
-      <h2 className="px-2 mb-2 mt-3 text-lg font-semibold tracking-widest text-gray-300 uppercase">
-        Folders
-      </h2>
-      <ul className="space-y-1">
-        {folders.map((folder) => (
-          <li key={folder.name}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelectFolder(folder.name);
-              }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
-                selectedFolder === folder.name
-                  ? "bg-[#AD49E1] text-white"
-                  : "text-gray-300 hover:bg-[#AD49E1]"
-              }`}
-            >
-              <FaFolder />
-              <span className="flex-grow text-sm font-medium">{folder.name}</span>
-              <span
-                className={`font-normal ${
-                  selectedFolder === folder.name ? "text-gray-200" : "text-gray-400"
-                }`}
-              >
-                {folder.noteCount}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </aside>
-);
+const colorClasses = {
+    'dark-purple': {
+        bg: 'bg-purple-500/50',
+        text: 'text-white',
+        iconBg: 'bg-purple-950',
+        iconText: 'text-white'
+    },
+    'dark-blue': {
+        bg: 'bg-blue-500/50',
+        text: 'text-white',
+        iconBg: 'bg-blue-900',
+        iconText: 'text-white'
+    }
+};
 
-// --- Main View Component ---
-const MainView: React.FC<{ isChatbotOpen: boolean; setIsChatbotOpen: (val: boolean) => void }> = ({
-  isChatbotOpen,
-  setIsChatbotOpen,
-}) => (
-  <main className="flex-1 flex flex-col items-center justify-center text-center">
-    <div className="flex flex-col items-center gap-4 text-gray-400">
-      <BsFileEarmarkTextFill className="w-20 h-20 text-[#4a4562]" />
-      <h1 className="text-2xl font-bold text-white">No note selected</h1>
-      <p className="max-w-xs">
-        Select a note from the sidebar or create a new one to get started.
-      </p>
-    </div>
-    <ChatbotSidebar isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
-  </main>
-);
+// --- COMPONENTS ---
 
-// --- MyNotes Main Component ---
-export const MyNotes = () => {
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-  const [folders] = useState<Folder[]>(initialFolders);
-  const [selectedFolder, setSelectedFolder] = useState<string>("Study Notes");
+// Folder Tree Item Component (Recursive)
+const FolderTreeItem = ({ folder, level = 0 }: { folder: FolderType; level?: number }) => {
+  const [isOpen, setIsOpen] = useState(level === 0); // Open top-level folders by default
+  const hasSubfolders = folder.subfolders && folder.subfolders.length > 0;
 
   return (
-    <div className="flex items-center justify-center w-full min-h-screen bg-black font-sans pt-10">
-      <div className="w-full max-w-7xl h-[85vh] flex rounded-2xl border border-gray-700/50 overflow-hidden relative bg-[#1e0329]">
-        
-        {/* Sidebar */}
-        <Sidebar
-          folders={folders}
-          selectedFolder={selectedFolder}
-          onSelectFolder={setSelectedFolder}
-        />
-
-        {/* Main View */}
-        <MainView isChatbotOpen={isChatbotOpen} setIsChatbotOpen={setIsChatbotOpen} />
-
-        {/* Floating Chat Button */}
-        <button
-          className="absolute flex items-center gap-2.5 px-5 py-3 font-semibold text-white transition-all duration-300 transform rounded-full shadow-lg bottom-6 right-6 bg-gradient-to-r from-purple-500 to-violet-600 hover:scale-105 shadow-violet-600/30"
-          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-          title="Chat with Synapse AI"
-        >
-          <BsChatDotsFill className="w-5 h-5" />
-          <span>Chat with Synapse AI</span>
-        </button>
+    <div>
+      <div
+        className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${
+          level === 0 && isOpen ? 'bg-slate-700 text-white' : 'text-slate-400 hover:bg-slate-700/50'
+        }`}
+        style={{ paddingLeft: `${0.5 + level * 1}rem` }}
+        onClick={() => hasSubfolders && setIsOpen(!isOpen)}
+      >
+        {hasSubfolders && (
+          <ChevronRight className={`w-4 h-4 mr-2 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+        )}
+        <Folder className={`w-5 h-5 mr-3 ${hasSubfolders ? '' : 'ml-6'}`} />
+        <span className="font-medium">{folder.name}</span>
       </div>
+      {isOpen && hasSubfolders && (
+        <div className="mt-1">
+          {folder.subfolders?.map((subfolder, index) => (
+            <FolderTreeItem key={index} folder={subfolder} level={level + 1} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
+
+// Sidebar Component
+const Sidebar = () => {
+    return (
+        <aside className="w-64 bg-slate-800 p-4 flex flex-col rounded-l-2xl border-r border-slate-700">
+            <div className="flex flex-col space-y-2 mb-6">
+                <button className="w-full bg-purple-500 text-white font-semibold py-3 rounded-lg hover:bg-purple-600 transition-colors shadow-sm">
+                    + New Note
+                </button>
+                <button className="w-full bg-purple-500 text-white font-semibold py-3 rounded-lg hover:bg-purple-600 transition-colors shadow-sm">
+                    + New Folder
+                </button>
+            </div>
+            
+            <div className="flex-grow overflow-y-auto pr-2">
+                 <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Notes</h2>
+                 <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-full" style={{top: '8px', bottom: 'calc(100% - 32px)'}}></div>
+                    {folders.map((folder, index) => (
+                        <FolderTreeItem key={index} folder={folder} />
+                    ))}
+                 </div>
+            </div>
+        </aside>
+    );
+};
+
+// Note/Folder Card Component
+const ItemCard = ({ item }: { item: ItemType }) => {
+    const colors = colorClasses[item.color];
+
+    return (
+        <div className={`p-4 rounded-xl flex flex-col h-full shadow-2xl transition-transform hover:-translate-y-1 border border-white/10 ${colors.bg}`}>
+            <div className="flex-grow">
+                <div className="flex justify-between items-start mb-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colors.iconBg}`}>
+                        {item.type === 'note' ? <FileText className={`w-6 h-6 ${colors.iconText}`} /> : <Folder className={`w-6 h-6 ${colors.iconText}`} />}
+                    </div>
+                    {item.time && (
+                        <div className="flex items-center text-xs bg-black/20 text-white font-semibold px-2 py-1 rounded-full">
+                            <Clock className="w-3 h-3 mr-1" />
+                            <span>{item.time}</span>
+                        </div>
+                    )}
+                     {item.tagCount && (
+                        <div className="flex items-center text-xs bg-black/20 text-white font-semibold px-2 py-1 rounded-full">
+                            <Tag className="w-3 h-3 mr-1" />
+                            <span>{item.tagCount}</span>
+                        </div>
+                    )}
+                </div>
+                <h3 className={`font-bold text-lg mb-1 ${colors.text}`}>{item.title}</h3>
+                <p className={`text-sm opacity-80 ${colors.text}`}>{item.content}</p>
+            </div>
+            <div className={`flex items-center text-xs mt-4 font-medium ${colors.text} opacity-70`}>
+                <Eye className="w-4 h-4 mr-1.5" />
+                <span>{item.views}</span>
+            </div>
+        </div>
+    );
+};
+
+
+// Main App Component
+export const MyNotes = () => {
+    return (
+        <div className="bg-black min-h-screen flex items-center justify-center p-4 pt-20 font-sans">
+            <main className="w-full max-w-6xl h-[800px] rounded-2xl shadow-2xl flex">
+                <Sidebar />
+                <div className="flex-1 p-8 bg-slate-900 rounded-r-2xl overflow-y-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {items.map(item => (
+                            <ItemCard key={item.id} item={item} />
+                        ))}
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+};
+

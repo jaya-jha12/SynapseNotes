@@ -5,6 +5,7 @@ import { Landing } from './pages/Landing';
 import { Navbar } from "./components/Navbar";
 import { SignupSlider } from "./pages/Auth";
 import {MyNotes} from './pages/MyNotes';
+import { NoteEditor } from "./pages/NoteEditor";
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/signin" element={<SignupSlider />} />
       <Route path="/mynotes" element={<MyNotes />} />
+      <Route path="/noteeditor" element={<NoteEditor />} />
     </Routes>
     </div>
     </BrowserRouter>

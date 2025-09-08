@@ -9,7 +9,7 @@ export const SignupSlider = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black relative">
-      {/* ✅ Back button on top-left of the whole slider */}
+      {/*Back button on top-left of the whole slider */}
       <button
         onClick={() => navigate(-1)} // go back to welcome
         className="absolute top-6 left-6 flex items-center gap-2 text-white hover:text-purple-400 font-semibold z-20 pt-30 pl-70 "

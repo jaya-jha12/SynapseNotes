@@ -94,14 +94,14 @@ export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => 
                             <p className="text-xs text-slate-400">Your Study Assistant</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="h-8 w-8 p-0 rounded-full hover:bg-slate-800 flex items-center justify-center"><X className="h-4 w-4" /></button>
+                    <button onClick={onClose} className="h-8 w-8 p-0 rounded-full hover:bg-slate-800 flex items-center justify-center"><X className="h-4 w-4 text-purple-400" /></button>
                 </div>
 
                 <div ref={scrollAreaRef} className="flex-1 p-4 space-y-4 overflow-y-auto">
                     {messages.map((message) => (
                         <div key={message.id} className={`flex items-start space-x-2 ${!message.isBot && 'flex-row-reverse space-x-reverse'}`}>
                             <div className={`h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 ${message.isBot ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-200'}`}>
-                                {message.isBot ? <Bot className="h-3 w-3" /> : <User className="h-3 w-3" />}
+                                {message.isBot ? <Bot className="h-3 w-3 text-purple-400" /> : <User className="h-3 w-3" />}
                             </div>
                             <div className={`max-w-[80%]`}>
                                 <div className={`p-3 rounded-lg ${message.isBot ? 'bg-slate-800 text-slate-200' : 'bg-purple-600 text-white'}`}>
