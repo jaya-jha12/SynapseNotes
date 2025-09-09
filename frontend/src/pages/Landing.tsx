@@ -3,6 +3,8 @@ import { BrainCircuit, BookOpen, Camera, Compass } from 'lucide-react';
 import type { LucideProps } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
 import { ContactUs } from '../components/ContactUs';
+import { useLocation } from "react-router-dom";
+import { scroller } from "react-scroll";
 
 const featuresData: {
   title: string;
@@ -34,6 +36,19 @@ const featuresData: {
 export const Landing = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const section = params.get("section");
+    if (section) {
+      scroller.scrollTo(section, {
+        smooth: true,
+        duration: 500,
+        offset: -70, // adjust for your fixed navbar height
+      });
+    }
+  }, [location]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
