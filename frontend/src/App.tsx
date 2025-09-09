@@ -4,8 +4,9 @@ import { BrowserRouter ,Route,Routes } from 'react-router-dom';
 import { Landing } from './pages/Landing';
 import { Navbar } from "./components/Navbar";
 import { SignupSlider } from "./pages/Auth";
-import {MyNotes} from './pages/MyNotes';
+import { MyNotes } from './pages/MyNotes';
 import { NoteEditor } from "./pages/NoteEditor";
+import { Toaster } from "react-hot-toast";
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
       <Route path="/mynotes" element={<MyNotes />} />
       <Route path="/noteeditor" element={<NoteEditor />} />
     </Routes>
+    <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
     </div>
     </BrowserRouter>
   )

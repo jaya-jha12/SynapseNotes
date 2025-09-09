@@ -1,8 +1,9 @@
 import React, { useState, forwardRef, createContext, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft,Heading1,Heading2,Heading3 } from "lucide-react";
+import { Save,ArrowLeft,Heading1,Heading2,Heading3 } from "lucide-react";
 import { ChatbotSidebar } from "../components/ChatbotSidebar";
 import { MessageCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 // --- TYPE DEFINITIONS ---
 type FCC<P = {}> = React.FC<React.PropsWithChildren<P>>;
@@ -131,6 +132,7 @@ export const NoteEditor = () => {
     const [activeTab, setActiveTab] = useState('write');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [open, setOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const navigate=useNavigate();
 
     const sidebarItems = [
@@ -152,6 +154,20 @@ export const NoteEditor = () => {
         { icon: List, label: 'Bullet List', format: '• ' },
         { icon: ListOrdered, label: 'Numbered List', format: '1. ' },
     ];
+    const handleSave = async () => {
+      setIsSaving(true);
+
+      try {
+        // Simulate API save with timeout
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        toast.success("Note saved successfully!");
+      } catch (err) {
+        toast.error("Failed to save note.");
+      } finally {
+        setIsSaving(false);
+      }
+    };
     
     // --- Text Formatting Logic ---
     const handleFormat = (format: string) => {
@@ -237,6 +253,17 @@ export const NoteEditor = () => {
                         </button>
                         <div className="h-4 w-px bg-slate-800" />
                         <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">✨ Note Editor</h1>
+                        <div className="ml-auto flex">
+                          
+                          <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow transition disabled:opacity-50"
+                          >
+                            <Save className="text-white w-4 h-4" />
+                            {isSaving ? "Saving..." : "Save"}
+                          </button>
+                        </div>
                     </div>
                 </div>
             </header>
