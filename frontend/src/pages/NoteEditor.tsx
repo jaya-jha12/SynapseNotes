@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Save,ArrowLeft,Heading1,Heading2,Heading3 } from "lucide-react";
 import { ChatbotSidebar } from "../components/ChatbotSidebar";
 import { MessageCircle } from "lucide-react";
+import { Summarise } from "./Summarise";
 import toast from "react-hot-toast";
 
 // --- TYPE DEFINITIONS ---
@@ -136,7 +137,7 @@ export const NoteEditor = () => {
     const navigate=useNavigate();
 
     const sidebarItems = [
-        { icon: FileText, label: 'Summarize', action: () => console.log('Summarize') },
+        { icon: FileText, label: 'Summarize', action: () =>navigate('/summarise') },
         { icon: Mic, label: 'Transcribe', action: () => console.log('Transcribe') },
         { icon: Upload, label: 'Upload PDF', action: () => console.log('Upload PDF') },
         { icon: FileSearch, label: 'Extract Text', action: () => console.log('Extract Text') },

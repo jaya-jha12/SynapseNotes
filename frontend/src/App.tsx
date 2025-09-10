@@ -7,6 +7,7 @@ import { SignupSlider } from "./pages/Auth";
 import { MyNotes } from './pages/MyNotes';
 import { NoteEditor } from "./pages/NoteEditor";
 import { Toaster } from "react-hot-toast";
+import { Summarise } from './pages/Summarise';
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
       <Route path="/signin" element={<SignupSlider />} />
       <Route path="/mynotes" element={<MyNotes />} />
       <Route path="/noteeditor" element={<NoteEditor />} />
+      <Route path="/summarise" element={<Summarise />} />
     </Routes>
     <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
     </div>
