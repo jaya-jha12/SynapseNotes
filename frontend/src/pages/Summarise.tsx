@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Upload, FileText, Loader2, Send } from "lucide-react";
+import { Upload, FileText, Loader2, Send ,ArrowLeft} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function Summarise() {
   const [summary, setSummary] = useState<string>("");
@@ -8,6 +9,7 @@ export function Summarise() {
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string }[]>([]);
   const [userInput, setUserInput] = useState<string>("");
+  const navigate = useNavigate();
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,11 +49,20 @@ export function Summarise() {
   };
 
   return (
-    <div className="min-h-screen pt-20 flex flex-col bg-gradient-to-tl from-[#2d0d4a] to-slate-900  items-center text-white">
-      {/* Title */}
-      <h1 className="text-3xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent font-bold mb-6">
-        ✨ AI Summarizer
-      </h1>
+    <div className="min-h-screen pt-20 flex flex-col bg-[#020617] bg-[radial-gradient(ellipse_at_top,_#2d0d4a,_transparent_70%),radial-gradient(ellipse_at_bottom,_#1a0b2e,_transparent_80%)]  items-center text-white">
+        <div className="flex items-center">
+            <button
+                onClick={() => navigate(-1)}
+                className="absolute top-4 left-4 pt-15 flex items-center gap-2 text-white hover:text-purple-300 text-xl">
+                <ArrowLeft className="w-6 h-6" />
+                <span>Back</span>
+            </button>
+            {/* Title */}
+            <h1 className="text-3xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent font-bold mb-6">
+                ✨ AI Summarizer
+            </h1>
+        </div>
+        
 
       {/* Upload Box */}
       <label className="w-full max-w-xl border-2 border-dashed border-purple-400 rounded-2xl p-10 flex flex-col items-center cursor-pointer hover:bg-purple-950/30 transition relative">
@@ -74,7 +85,7 @@ export function Summarise() {
       <button
         onClick={handleChatToggle}
         disabled={!fileName}
-        className="mt-6 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 px-5 py-2 rounded-xl shadow-md transition text-white"
+        className="mt-6 bg-purple-600 hover:bg-purple-800 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/20  duration-300 disabled:opacity-50 px-5 py-2 rounded-xl shadow-md transition text-white"
       >
         {chatOpen ? "Close Chat" : "Chat with PDF"}
       </button>

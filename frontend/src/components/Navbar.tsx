@@ -52,7 +52,7 @@ export const Navbar = () => {
 
         <button
           onClick={() => handleNavClick("contact")}
-          className="flex items-center space-x-2 hover:text-pink-300 cursor-pointer"
+          className="flex items-center space-x-2 hover:text-purple-300 cursor-pointer"
         >
           <Phone size={18} />
           <span>Contact Us</span>
@@ -60,7 +60,7 @@ export const Navbar = () => {
 
         <Link
           to="/mynotes"
-          className="flex items-center space-x-2 hover:text-pink-300 cursor-pointer"
+          className="flex items-center space-x-2 hover:text-purple-300 cursor-pointer"
         >
           <BookOpen size={18} />
           <span>My Notes</span>

@@ -138,7 +138,7 @@ export const NoteEditor = () => {
 
     const sidebarItems = [
         { icon: FileText, label: 'Summarize', action: () =>navigate('/summarise') },
-        { icon: Mic, label: 'Transcribe', action: () => console.log('Transcribe') },
+        { icon: Mic, label: 'Transcribe', action: () => navigate('/transcribe') },
         { icon: Upload, label: 'Upload PDF', action: () => console.log('Upload PDF') },
         { icon: FileSearch, label: 'Extract Text', action: () => console.log('Extract Text') },
         { icon: Share, label: 'Share', action: () => console.log('Share') },

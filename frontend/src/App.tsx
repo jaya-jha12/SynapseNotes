@@ -8,6 +8,7 @@ import { MyNotes } from './pages/MyNotes';
 import { NoteEditor } from "./pages/NoteEditor";
 import { Toaster } from "react-hot-toast";
 import { Summarise } from './pages/Summarise';
+import { TranscribePage } from './pages/Transcribe';
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
       <Route path="/mynotes" element={<MyNotes />} />
       <Route path="/noteeditor" element={<NoteEditor />} />
       <Route path="/summarise" element={<Summarise />} />
+      <Route path="/transcribe" element={<TranscribePage/>} />
     </Routes>
     <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
     </div>
