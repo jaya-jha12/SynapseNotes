@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// 1. GENERATOR
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. DATASOURCE (This is where the error was!)
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")   // <--- This line was missing
+  directUrl = env("DIRECT_URL")     // <--- This line is needed for migrations
+}
+
+// 2. USER MODEL
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  // Relation: One User has many Folders
+  folders   Folder[] 
+}
+
+// 3. FOLDER MODEL
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  // Relation: Belongs to a User
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relation: One Folder has many Notes
+  notes     Note[]
+}
+
+// 4. NOTE MODEL
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?  // '?' means it can be empty initially
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // Automatically updates when you save edits
+
+  // Relation: Belongs to a Folder
+  folderId  String
+  folder    Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+}
