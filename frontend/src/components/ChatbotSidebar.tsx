@@ -1,26 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
 
-import { 
-    X, 
-    Send, 
-    Bot, 
-    User,  
+import {
+    X,
+    Send,
+    Bot,
+    User,
 } from 'lucide-react';
 
 interface Message {
-  id: string;
-  content: string;
-  isBot: boolean;
-  timestamp: Date;
+    id: string;
+    content: string;
+    isBot: boolean;
+    timestamp: Date;
 }
 
 interface ChatbotSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
+    isOpen: boolean;
+    onClose: () => void;
 }
 
-const apiurl= import.meta.env.VITE_GEMINI_API_URL;
+const apiurl = import.meta.env.VITE_GEMINI_API_URL;
 
 export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => {
     const [messages, setMessages] = useState<Message[]>([
@@ -40,30 +40,40 @@ export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => 
         scrollToBottom();
     }, [messages]);
 
-    const getBotResponse = async (userMessage: string) => { 
-        const apiUrl = apiurl;
-        const systemPrompt = "You are a friendly and helpful AI assistant for a note-taking app called 'Synapse Notes'. Your goal is to help users with their notes by providing summaries, answering questions, and offering study tips. Keep your responses concise and encouraging.";
+    const getBotResponse = async (userMessage: string) => {
+        // 1. Point to your Backend Route
+        const apiUrl = 'http://localhost:5000/api/ai/chat';
+
+        // 2. Get the Auth Token (Required by verifyToken middleware)
+        const token = localStorage.getItem('token');
 
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Send the token!
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: userMessage }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    // Your backend expects "message" and optional "context"
+                    message: userMessage,
+                    context: "User is asking a question via the sidebar chat."
                 })
             });
             if (!response.ok) {
-                throw new Error(`API error: ${response.statusText}`);
+                throw new Error(`Server Error: ${response.statusText}`);
             }
+
             const result = await response.json();
-            return result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't process that. Please try again.";
+
+            // 3. Return the clean reply from your backend
+            return result.reply || "No response received.";
+
         } catch (error) {
-            console.error("Gemini API call failed:", error);
-            return "I'm having trouble connecting right now. Please check your connection and try again.";
+            console.error("Chat API failed:", error);
+            return "I'm having trouble connecting to the Synapse server right now.";
         }
     };
-
     const handleSendMessage = async () => {
         if (!inputValue.trim()) return;
 
@@ -73,7 +83,7 @@ export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => 
         setIsTyping(true);
 
         const botResponseContent = await getBotResponse(userMessage.content);
-        
+
         const botMessage: Message = { id: (Date.now() + 1).toString(), content: botResponseContent, isBot: true, timestamp: new Date() };
         setMessages(prev => [...prev, botMessage]);
         setIsTyping(false);
