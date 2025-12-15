@@ -20,7 +20,6 @@ interface ChatbotSidebarProps {
     onClose: () => void;
 }
 
-const apiurl = import.meta.env.VITE_GEMINI_API_URL;
 
 export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => {
     const [messages, setMessages] = useState<Message[]>([
