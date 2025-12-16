@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { GoogleLoginButton } from "../components/GoogleLoginButton"; // <--- Import the new component
 
 export const SignupSlider = () => {
   const [isSignUp, setIsSignUp] = useState(true);
@@ -57,7 +58,7 @@ export const SignupSlider = () => {
         <ArrowLeft size={20} /> Back
       </button>
 
-      <div className="relative w-full max-w-4xl bg-gradient-to-br from-slate-900 via-black to-slate-800 rounded-2xl shadow-2xl overflow-hidden flex">
+      <div className="relative w-full max-w-4xl bg-gradient-to-br from-slate-900 via-black to-slate-800 rounded-2xl shadow-2xl overflow-hidden flex min-h-[600px]">
 
         {/* Left Slider Panel */}
         <motion.div
@@ -101,6 +102,7 @@ export const SignupSlider = () => {
           transition={{ duration: 0.6, type: "spring" }}
         >
           {isSignUp ? (
+            /* --- SIGN UP FORM --- */
             <div>
               <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center font-serif">
                 Create Account
@@ -134,7 +136,7 @@ export const SignupSlider = () => {
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
                   required
                 />
-                {/* --- UPDATED SIGN UP BUTTON --- */}
+                
                 <button
                   type="submit"
                   disabled={loading}
@@ -144,9 +146,20 @@ export const SignupSlider = () => {
                   {loading ? "Creating Account..." : "Sign Up"}
                 </button>
               </form>
+
+              {/* Divider & Google Button */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-700" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-gradient-to-br from-slate-900 to-black px-2 text-slate-400">Or continue with</span>
+                </div>
+              </div>
+              <GoogleLoginButton text="Sign up with Google" />
             </div>
           ) : (
-            /* Login form */
+            /* --- SIGN IN FORM --- */
             <div>
               <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center font-serif">
                 Sign In
@@ -171,7 +184,7 @@ export const SignupSlider = () => {
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
                   required
                 />
-                {/* --- UPDATED SIGN IN BUTTON --- */}
+                
                 <button
                   type="submit"
                   disabled={loading}
@@ -181,6 +194,17 @@ export const SignupSlider = () => {
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
               </form>
+
+              {/* Divider & Google Button */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-700" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-gradient-to-br from-slate-900 to-black px-2 text-slate-400">Or continue with</span>
+                </div>
+              </div>
+              <GoogleLoginButton text="Sign in with Google" />
             </div>
           )}
         </motion.div>
