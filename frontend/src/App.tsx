@@ -11,33 +11,26 @@ import { Summarise } from './pages/Summarise';
 import { TranscribePage } from './pages/Transcribe';
 import { ImageToNotesPage } from './pages/Image';
 import { supabase } from './supabaseClient'; 
+import {type Session} from '@supabase/supabase-js';
 
 function App() {
 
   useEffect(() => {
-    // Helper to set local storage
-    const setSessionData = (session: any) => {
-      localStorage.setItem('token', session.access_token);
-      const user = session.user;
-      // Google usually provides 'full_name' or 'name' in metadata
-      const name = user.user_metadata.full_name || user.user_metadata.name || user.email?.split('@')[0];
-      
-      localStorage.setItem('username', name);
-    };
-
-    // 1. Check active session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // 1. Check active session
+    // Explicitly type 'session' as Session | null
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       if (session) {
-        setSessionData(session);
+        localStorage.setItem('token', session.access_token);
       }
     });
 
-    // 2. Listen for auth changes (Login, Logout)
+    // 2. Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => { // Added types here
       if (session) {
-        setSessionData(session);
+        localStorage.setItem('token', session.access_token);
+        // ... rest of your logic
       } else {
         localStorage.removeItem('token');
         localStorage.removeItem('username');

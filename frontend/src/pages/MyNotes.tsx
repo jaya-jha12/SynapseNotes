@@ -101,7 +101,6 @@ export const MyNotes = () => {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ title, content: "", folderId: activeFolderId })
       });
-      const newNote = await res.json();
       if (res.ok) fetchNotes(activeFolderId); 
     } catch (err) { console.error(err); }
   };

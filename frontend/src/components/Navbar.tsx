@@ -1,4 +1,4 @@
-import { Link as ScrollLink, scroller } from "react-scroll";
+import { scroller } from "react-scroll";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Phone, LogIn, Rocket, Star, BookOpen,User,LogOut } from "lucide-react";
 import { useCallback,useState,useEffect } from "react";

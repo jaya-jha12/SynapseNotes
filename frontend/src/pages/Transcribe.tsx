@@ -51,7 +51,7 @@ type TabState = 'summary' | 'minutes';
 export const TranscribePage: React.FC = () => {
   // --- STATE ---
   const [view, setView] = useState<ViewState>('initial');
-  const [fileName, setFileName] = useState<string>('');
+  const [_fileName, setFileName] = useState<string>('');
   const [activeTab, setActiveTab] = useState<TabState>('summary');
   const [summary, setSummary] = useState<string>('');
   const [minutes, setMinutes] = useState<string>('');
