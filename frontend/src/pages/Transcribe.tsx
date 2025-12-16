@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Mic, Square, BotMessageSquare, Send, Loader2, ArrowLeft, BookText, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// --- WORKER CODE ---
+// WORKER CODE
 const WORKER_CODE = `
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js';
 

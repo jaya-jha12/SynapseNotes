@@ -1,11 +1,50 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft,Loader2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 export const SignupSlider = () => {
   const [isSignUp, setIsSignUp] = useState(true);
   const navigate=useNavigate();
+  const [formData,setFormData]=useState({
+    username:"",
+    email:"",
+    password:""
+  })
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
+  }
+  const handleAuth=async (e: React.FormEvent)=>{
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    const endpoint = isSignUp 
+      ? "http://localhost:5000/api/auth/register" 
+      : "http://localhost:5000/api/auth/login";
+    
+    try{
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Authentication failed");
+      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.username);
+      navigate("/");
+    }catch(err:any){
+      setError(err.message);
+    }finally{
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black relative">
@@ -41,7 +80,11 @@ export const SignupSlider = () => {
                 : "Don’t have an account yet? Sign up and join us!"}
             </p>
             <button
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() =>{
+                setIsSignUp(!isSignUp);
+                setError("");
+                setFormData({ username: "", email: "", password: "" });
+              }}
               className="px-6 py-2 rounded-lg bg-white text-purple-700 font-semibold hover:bg-gray-100 transition cursor-pointer"
             >
               {isSignUp ? "Sign In" : "Sign Up"}
@@ -61,51 +104,77 @@ export const SignupSlider = () => {
               <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center font-serif">
                 Create Account
               </h2>
-              <form className="space-y-4">
+              <form onSubmit={handleAuth} className="space-y-4">
                 <input
+                  name="username"
                   type="text"
-                  placeholder="Name"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
+                  required
                 />
                 <input
+                  name="email"
                   type="email"
                   placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
+                  required
                 />
                 <input
+                  name="password"
                   type="password"
                   placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
+                  required
                 />
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full text-xl font-serif bg-purple-500/80 hover:bg-purple-600/80 text-white py-3 rounded-lg font-semibold transition"
                 >
-                  Sign Up
+                  {loading && <Loader2 className="animate-spin w-5 h-5" />}
+                  {loading ? "Creating Account..." : "Sign Up"}
                 </button>
               </form>
             </div>
           ) : (
+            /*Login form */
             <div>
               <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center font-serif">
                 Sign In
               </h2>
-              <form className="space-y-4">
+              {error && <p className="text-red-400 text-center mb-4 text-sm bg-red-900/20 p-2 rounded">{error}</p>}
+              <form onSubmit={handleAuth} className="space-y-4">
                 <input
-                  type="email"
-                  placeholder="Email"
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
                 />
                 <input
+                  name="password"
                   type="password"
                   placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-purple-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 outline-none"
+                  required
                 />
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full text-xl font-serif bg-purple-500/80 hover:bg-purple-600/80 text-white py-3 rounded-lg font-semibold transition"
                 >
-                  Sign In
+                  {loading && <Loader2 className="animate-spin w-5 h-5" />}
+                  {loading ? "Signing In..." : "Sign In"}
                 </button>
               </form>
             </div>
