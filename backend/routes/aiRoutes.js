@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { InferenceClient } from '@huggingface/inference';
 import dotenv from 'dotenv';
-import { verifyToken } from '../middlewares/authMiddleware.js';
+import { verifyToken } from '../middlewares/authmiddleware.js';
 import { createRequire } from 'module'; 
 import Groq from "groq-sdk";
 

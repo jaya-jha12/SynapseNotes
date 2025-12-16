@@ -1,6 +1,6 @@
 import express from 'express';
 import prisma from '../prisma/client.js'; // Adjust path to your prisma client
-import { verifyToken } from '../middlewares/authMiddleware.js';
+import { verifyToken } from '../middlewares/authmiddleware.js';
 
 const router = express.Router();
 // --- FOLDER ROUTES ---
