@@ -23,6 +23,14 @@ export const Navbar = () => {
     navigate("/"); 
   };
 
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+        navigate("/mynotes");
+    } else {
+        navigate("/signin");
+    }
+  };
+
   // helper for handling section navigation
   const handleNavClick = useCallback(
     (section: string) => {
@@ -111,13 +119,13 @@ export const Navbar = () => {
           </Link>
         )}
 
-        <Link
-          to="/get-started"
-          className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-semibold shadow"
+        <button
+          onClick={handleGetStarted}
+          className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-white font-semibold shadow transition-colors"
         >
           <Rocket size={18} />
           <span>Get Started</span>
-        </Link>
+        </button>
       </div>
     </header>
   );

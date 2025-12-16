@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(express.json()); // Allow parsing JSON bodies
 app.use('/api/ai', aiRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/notes',notesRoutes);
+app.use('/api/contact',contactRoutes);
 
 app.listen(port, () => {
     console.log(`Synapse Notes Backend running on http://localhost:${port}`);

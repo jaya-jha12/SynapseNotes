@@ -3,9 +3,10 @@ import { BrainCircuit, BookOpen, Camera, Compass } from 'lucide-react';
 import type { LucideProps } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
 import { ContactUs } from '../components/ContactUs';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // 1. Import useNavigate
 import { scroller } from "react-scroll";
 
+// ... (featuresData array remains the same) ...
 const featuresData: {
   title: string;
   icon: React.FC<LucideProps>;
@@ -37,6 +38,26 @@ export const Landing = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate(); // 2. Initialize Hook
+
+  // --- 3. Navigation Handlers ---
+  const handleTryNow = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/mynotes");
+    } else {
+      navigate("/signin");
+    }
+  };
+
+  const handleLearnMore = () => {
+    scroller.scrollTo("feature", {
+      smooth: true,
+      duration: 500,
+      offset: -70, // Adjusts for navbar height
+    });
+  };
+  // ------------------------------
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -45,7 +66,7 @@ export const Landing = () => {
       scroller.scrollTo(section, {
         smooth: true,
         duration: 500,
-        offset: -70, // adjust for your fixed navbar height
+        offset: -70,
       });
     }
   }, [location]);
@@ -54,10 +75,9 @@ export const Landing = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        // Set visibility based on whether the section is in the viewport
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.2 } // Trigger when 20% of the section is visible
+      { threshold: 0.2 }
     );
 
     const currentRef = sectionRef.current;
@@ -67,7 +87,6 @@ export const Landing = () => {
 
     return () => {
       if (currentRef) {
-        // Clean up the observer when the component unmounts
         observer.unobserve(currentRef);
       }
     };
@@ -90,17 +109,25 @@ export const Landing = () => {
             and generate intelligent summaries automatically.
           </p>
           <div className="flex justify-center items-center  pl-35  space-x-8">
-              <button className="bg-purple-500 hover:bg-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)] text-xl px-6 py-3 rounded-4xl font-semibold ">
+              {/* 4. Update Buttons with Handlers */}
+              <button 
+                onClick={handleTryNow}
+                className="bg-purple-500 hover:bg-purple-600 shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)] text-xl px-6 py-3 rounded-4xl font-semibold transition-all"
+              >
               Try Now
               </button>
-              <button className=" hover:bg-white/20 text-xl transition border-2 border-purple-400 px-6 py-3 rounded-4xl font-semibold shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)]">
+              
+              <button 
+                onClick={handleLearnMore}
+                className="hover:bg-white/20 text-xl transition border-2 border-purple-400 px-6 py-3 rounded-4xl font-semibold shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)]"
+              >
               Learn More
               </button>
           </div>
           
         </div>
 
-        {/* Right side spotlight */}
+        {/* Right side spotlight (No changes below this point) */}
         <div className="relative flex justify-center items-center w-1/2">
           {/* Main spotlight cone */}
           <div className="absolute top-0 h-[900px] w-[1000px] 
