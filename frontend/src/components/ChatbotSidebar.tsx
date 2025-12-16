@@ -96,7 +96,7 @@ export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => 
                 <div className="p-4 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                         <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center">
-                            <img src='./logo.png' alt="logo" />
+                            <img src='/logo.png' alt="logo" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-sm text-slate-100">Synapse AI</h3>

@@ -220,7 +220,7 @@ export const NoteEditor = () => {
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/_(.*?)_/g, '<u>$1</u>')
-            .replace(/```([\s\S]*?)```/g, '<pre class="bg-slate-800 p-4 rounded-lg my-4"><code class="text-white">$1</code></pre>')
+            .replace(/```([\s\S]*?)```/g, '<pre class="bg-slate-800 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-white">$1</code></pre>')
             .replace(/^• (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
             .replace(/^1\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
             .replace(/\n/g, '<br />');
@@ -229,7 +229,7 @@ export const NoteEditor = () => {
     };
 
     return (
-        <div className="h-full bg-slate-950 text-slate-50 pt-15">
+        <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-50 pt-15">
             {/* Header */}
             <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-10">
                 <div className="container mx-auto px-6 py-4">

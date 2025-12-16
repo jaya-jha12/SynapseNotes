@@ -240,7 +240,7 @@ export const TranscribePage: React.FC = () => {
   // --- 5. RENDER ---
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#1e1b4b] to-[#0c0a09] items-center justify-center p-4 sm:p-6 text-white font-sans relative">
-      <button onClick={() => navigate(-1)} className="absolute top-6 left-6 flex items-center gap-2 text-white hover:text-purple-300 transition z-10">
+      <button onClick={() => navigate(-1)} className="absolute top-17 left-6 flex items-center gap-2 text-white hover:text-purple-300 transition z-10">
         <ArrowLeft className="w-8 h-8" />
         <span className="text-xl">Back</span>
       </button>

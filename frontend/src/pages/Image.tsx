@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Upload, BotMessageSquare, Send, Loader2, ArrowLeft, BookText, Pilcrow } from 'lucide-react';
+import { Upload, BotMessageSquare, Send, Loader2, ArrowLeft, BookText, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
+import ReactMarkdown from "react-markdown";
 
 // Define a type for our chat messages
 type ChatMessage = {
@@ -10,78 +12,112 @@ type ChatMessage = {
 
 // Define types for the different views
 type ViewState = 'initial' | 'processing' | 'results';
-type TabState = 'notes' | 'text';
 
 export const ImageToNotesPage: React.FC = () => {
   const [view, setView] = useState<ViewState>('initial');
   const [fileName, setFileName] = useState<string>('');
   const [formattedNotes, setFormattedNotes] = useState<string>('');
-  const [extractedText, setExtractedText] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<TabState>('notes');
-
+  
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState<string>('');
   const [isAiTyping, setIsAiTyping] = useState<boolean>(false);
+  
+  // New State for Copy Feedback
+  const [copied, setCopied] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setFileName(file.name);
-    processImage();
-  };
-
-  const processImage = () => {
     setView('processing');
-    
-    // Simulate AI processing delay
-    setTimeout(() => {
-      setFormattedNotes(
-        `### Key Concepts from Whiteboard ###
-* **Neural Networks:**
-    * Consist of layers: Input, Hidden, and Output.
-    * Activation functions (like ReLU, Sigmoid) introduce non-linearity.
-* **Gradient Descent:**
-    * An optimization algorithm used to minimize the loss function.
-    * Calculates the gradient of the loss function with respect to the model's parameters.
-* **Backpropagation:**
-    * The method for efficiently computing gradients in a neural network.`
-      );
-      setExtractedText(
-        "neural networks -> input/hidden/output layers\n- activation funcs (ReLU, Sigmoid)\n\nGRADIENT DESCENT\n- minimize loss\n- find gradient\n\nBACKPROPAGATION\n<- efficient gradient calc"
-      );
+    setFormattedNotes('');
+
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch('http://localhost:5000/api/ai/image-to-notes', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData 
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to process image");
+      
+      setFormattedNotes(data.formatted_notes);
+      // We ignore data.raw_text now since we removed that tab
+      
       setView('results');
-    }, 3000);
+      toast.success("Notes generated successfully!");
+
+    } catch (error: any) {
+      console.error("Processing Error:", error);
+      toast.error(error.message || "Something went wrong");
+      setTimeout(() => setView('initial'), 2000);
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!userInput.trim()) return;
 
-    const newMessages: ChatMessage[] = [...chatMessages, { sender: 'user', text: userInput }];
-    setChatMessages(newMessages);
-    setUserInput('');
+    const userMessage = userInput;
+    setUserInput(''); 
+
+    setChatMessages(prev => [...prev, { sender: 'user', text: userMessage }]);
     setIsAiTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch('http://localhost:5000/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          context: formattedNotes || "No notes available."
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      setChatMessages(prev => [...prev, { sender: 'ai', text: data.reply }]);
+
+    } catch (error) {
+      console.error("Chat Error:", error);
+      setChatMessages(prev => [...prev, { sender: 'ai', text: "Sorry, I couldn't connect to the AI." }]);
+    } finally {
       setIsAiTyping(false);
-      setChatMessages(prev => [...prev, { sender: 'ai', text: "This is a dummy AI response about your uploaded notes." }]);
-    }, 1500);
+    }
   };
 
   const handleReset = () => {
     setView('initial');
     setFileName('');
     setFormattedNotes('');
-    setExtractedText('');
     setChatMessages([]);
+  };
+
+  // --- Copy Handler ---
+  const handleCopy = () => {
+    if (!formattedNotes) return;
+    
+    navigator.clipboard.writeText(formattedNotes);
+    setCopied(true);
+    toast.success("Copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#311b4b] to-[#0c0a09] items-center justify-center p-4 sm:p-6 text-white font-sans relative">
-      <button 
-        onClick={() => navigate(-1)} 
+      <button
+        onClick={() => navigate(-1)}
         className="absolute pt-15 top-6 left-6 flex items-center gap-2 text-white hover:text-purple-300 transition z-10"
       >
         <ArrowLeft className="w-8 h-8" />
@@ -94,8 +130,7 @@ export const ImageToNotesPage: React.FC = () => {
             AI Image-to-Notes Converter
           </h1>
           <p className="text-purple-200 mb-8">Upload a picture of a whiteboard or notes, and let AI do the rest.</p>
-          
-          {/* Upload Box */}
+
           <label className="w-full max-w-lg mx-auto border-2 border-dashed border-purple-400 rounded-2xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-purple-950/30 transition">
             <Upload className="w-12 h-12 mb-3 text-purple-300" />
             <p className="mb-2 font-semibold">Click or Drag to Upload</p>
@@ -124,22 +159,42 @@ export const ImageToNotesPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 flex-grow min-h-0">
-            {/* Left Panel: Formatted Notes & Extracted Text */}
+            
+            {/* Left Panel: Formatted Notes Only */}
             <div className="w-full lg:w-3/5 flex flex-col bg-slate-900/50 border border-purple-600/30 rounded-2xl shadow-lg">
-              <div className="flex border-b border-purple-600/30">
-                <button onClick={() => setActiveTab('notes')} className={`flex-1 p-4 font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'notes' ? 'bg-purple-600/30 text-white' : 'text-purple-300 hover:bg-purple-900/40'}`}>
-                  <BookText className="w-5 h-5" /> Formatted Notes
-                </button>
-                <button onClick={() => setActiveTab('text')} className={`flex-1 p-4 font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'text' ? 'bg-purple-600/30 text-white' : 'text-purple-300 hover:bg-purple-900/40'}`}>
-                  <Pilcrow className="w-5 h-5" /> Extracted Text
-                </button>
+              
+              {/* Header with Title and Copy Button */}
+              <div className="flex justify-between items-center border-b border-purple-600/30 p-4">
+                  <div className="flex items-center gap-2 text-purple-200 font-semibold">
+                      <BookText className="w-5 h-5 text-purple-400" />
+                      Formatted Notes
+                  </div>
+
+                  {/* Copy Button */}
+                  <button 
+                    onClick={handleCopy}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-900/50 hover:bg-purple-800 border border-purple-500/50 rounded-lg text-purple-200 transition-all"
+                    title="Copy Content"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                    {copied ? "Copied" : "Copy"}
+                  </button>
               </div>
+
               <div className="p-6 overflow-y-auto flex-grow">
-                {activeTab === 'notes' ? (
-                  <p className="text-purple-100 leading-relaxed whitespace-pre-wrap">{formattedNotes}</p>
-                ) : (
-                  <p className="text-purple-100 leading-relaxed whitespace-pre-wrap">{extractedText}</p>
-                )}
+                  <div className="prose prose-invert max-w-none text-purple-100 text-sm">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-pink-400 mt-4 mb-2" {...props} />,
+                        h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-purple-300 mt-3 mb-2" {...props} />,
+                        strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />,
+                        ul: ({ node, ...props }) => <ul className="list-disc pl-5 space-y-1 my-2" {...props} />,
+                        li: ({ node, ...props }) => <li className="text-purple-100/90" {...props} />,
+                      }}
+                    >
+                      {formattedNotes}
+                    </ReactMarkdown>
+                  </div>
               </div>
             </div>
 
@@ -151,11 +206,22 @@ export const ImageToNotesPage: React.FC = () => {
               </h3>
               <div className="flex-1 overflow-y-auto space-y-3 p-2 bg-slate-950/40 rounded-lg min-h-[200px] lg:min-h-0">
                 {chatMessages.map((msg, i) => (
-                  <div key={i} className={`p-3 rounded-lg max-w-[85%] ${msg.sender === 'user' ? 'bg-purple-600 ml-auto' : 'bg-gray-700 mr-auto'}`}>
-                    {msg.text}
+                  <div key={i} className={`p-3 rounded-lg max-w-[85%] text-sm ${msg.sender === 'user' ? 'bg-purple-600 ml-auto' : 'bg-gray-700 mr-auto'}`}>
+                    {/* Render Chat Markdown */}
+                    <ReactMarkdown
+                        components={{
+                            p: ({node, ...props}) => <p className="mb-1 last:mb-0" {...props} />,
+                            strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
+                            ul: ({node, ...props}) => <ul className="list-disc pl-4 mb-2" {...props} />,
+                            ol: ({node, ...props}) => <ol className="list-decimal pl-4 mb-2" {...props} />,
+                            code: ({node, ...props}) => <code className="bg-black/30 px-1 rounded text-xs font-mono" {...props} />
+                        }}
+                    >
+                        {msg.text}
+                    </ReactMarkdown>
                   </div>
                 ))}
-                {isAiTyping && <div className="p-3 rounded-lg max-w-[85%] bg-gray-700 mr-auto">...</div>}
+                {isAiTyping && <div className="p-3 rounded-lg max-w-[85%] bg-gray-700 mr-auto text-sm animate-pulse">Thinking...</div>}
               </div>
               <div className="mt-4 flex items-center gap-3">
                 <input
@@ -177,4 +243,3 @@ export const ImageToNotesPage: React.FC = () => {
     </div>
   );
 };
-
