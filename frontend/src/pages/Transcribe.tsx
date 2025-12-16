@@ -59,6 +59,7 @@ export const TranscribePage: React.FC = () => {
   const [statusText, setStatusText] = useState<string>("");
   const [userInput, setUserInput] = useState<string>('');
   const [isAiTyping, setIsAiTyping] = useState<boolean>(false);
+  const API_BASE=import.meta.env.VITE_API_URL;
   
   const worker = useRef<Worker | null>(null);
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ export const TranscribePage: React.FC = () => {
     try {
       console.log("Sending to backend:", { text });
 
-      const response = await fetch('http://localhost:5000/api/ai/transcribe', {
+      const response = await fetch(`${API_BASE}/api/ai/transcribe`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json', 
@@ -210,7 +211,7 @@ export const TranscribePage: React.FC = () => {
 
     try {
         const token = localStorage.getItem("token");
-        const response = await fetch('http://localhost:5000/api/ai/chat', {
+        const response = await fetch(`${API_BASE}/api/ai/chat`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json', 

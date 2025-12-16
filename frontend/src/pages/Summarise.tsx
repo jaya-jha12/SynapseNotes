@@ -12,6 +12,7 @@ export function Summarise() {
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string }[]>([]);
   const [userInput, setUserInput] = useState<string>("");
   const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
+  const API_BASE=import.meta.env.VITE_API_URL;
   
   // New State for Copy Feedback
   const [copied, setCopied] = useState(false);
@@ -31,7 +32,7 @@ export function Summarise() {
     formData.append("file", file);
     try{
       const token=localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/ai/summarize", {
+      const res = await fetch(`${API_BASE}/api/ai/summarize`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData, 
@@ -65,7 +66,7 @@ export function Summarise() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/ai/chat", {
+      const res = await fetch(`${API_BASE}/api/ai/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

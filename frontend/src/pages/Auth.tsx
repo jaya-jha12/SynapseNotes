@@ -21,12 +21,14 @@ export const SignupSlider = () => {
   };
 
   const handleAuth = async (e: React.FormEvent) => {
+    const API_BASE=import.meta.env.VITE_API_URL;
+
     e.preventDefault();
     setLoading(true);
     setError("");
     const endpoint = isSignUp
-      ? "http://localhost:5000/api/auth/register"
-      : "http://localhost:5000/api/auth/login";
+      ? `${API_BASE}/api/auth/register`
+      : `${API_BASE}/api/auth/login`;
 
     try {
       const response = await fetch(endpoint, {
@@ -156,7 +158,7 @@ export const SignupSlider = () => {
                   <span className="bg-gradient-to-br from-slate-900 to-black px-2 text-slate-400">Or continue with</span>
                 </div>
               </div>
-              <GoogleLoginButton text="Sign up with Google" />
+              <GoogleLoginButton  />
             </div>
           ) : (
             /* --- SIGN IN FORM --- */
@@ -204,7 +206,7 @@ export const SignupSlider = () => {
                   <span className="bg-gradient-to-br from-slate-900 to-black px-2 text-slate-400">Or continue with</span>
                 </div>
               </div>
-              <GoogleLoginButton text="Sign in with Google" />
+              <GoogleLoginButton  />
             </div>
           )}
         </motion.div>

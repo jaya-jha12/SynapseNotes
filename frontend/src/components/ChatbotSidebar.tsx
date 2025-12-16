@@ -41,7 +41,8 @@ export const ChatbotSidebar: FC<ChatbotSidebarProps> = ({ isOpen, onClose }) => 
 
     const getBotResponse = async (userMessage: string) => {
         // 1. Point to your Backend Route
-        const apiUrl = 'http://localhost:5000/api/ai/chat';
+        const API_BASE = import.meta.env.VITE_API_URL;
+        const apiUrl = `${API_BASE}/api/ai/chat`;
 
         // 2. Get the Auth Token (Required by verifyToken middleware)
         const token = localStorage.getItem('token');

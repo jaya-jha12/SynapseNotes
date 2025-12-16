@@ -39,7 +39,8 @@ export const ImageToNotesPage: React.FC = () => {
     formData.append("file", file);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch('http://localhost:5000/api/ai/image-to-notes', {
+      const API_BASE=import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API_BASE}/api/ai/image-to-notes`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData 
@@ -71,7 +72,8 @@ export const ImageToNotesPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch('http://localhost:5000/api/ai/chat', {
+      const API_BASE=import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API_BASE}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

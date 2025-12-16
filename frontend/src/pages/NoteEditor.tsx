@@ -85,6 +85,7 @@ export const NoteEditor = () => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [open, setOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const API_BASE=import.meta.env.VITE_API_URL;
 
     // --- 1. FETCH NOTE ---
     useEffect(() => {
@@ -92,7 +93,7 @@ export const NoteEditor = () => {
             if (!id) return;
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:5000/api/notes/notes/${id}`, {
+                const res = await fetch(`${API_BASE}/api/notes/notes/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -116,7 +117,7 @@ export const NoteEditor = () => {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch(`http://localhost:5000/api/notes/notes/${id}`, {
+            const res = await fetch(`${API_BASE}/api/notes/notes/${id}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',

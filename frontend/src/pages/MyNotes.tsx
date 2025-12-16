@@ -30,6 +30,7 @@ export const MyNotes = () => {
   const [openMenuFolderId, setOpenMenuFolderId] = useState<string | null>(null);
 
   const token = localStorage.getItem('token');
+  const API_BASE=import.meta.env.VITE_API_URL;
 
   // --- EFFECT HOOKS ---
   useEffect(() => {
@@ -52,7 +53,7 @@ export const MyNotes = () => {
   // --- API FUNCTIONS ---
   const fetchFolders = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/notes/folders', {
+      const res = await fetch(`${API_BASE}/api/notes/folders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -66,7 +67,7 @@ export const MyNotes = () => {
   const fetchNotes = async (folderId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/notes/folders/${folderId}/notes`, {
+      const res = await fetch(`${API_BASE}/api/notes/folders/${folderId}/notes`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -79,7 +80,7 @@ export const MyNotes = () => {
     const name = prompt("Enter folder name:");
     if (!name) return;
     try {
-      const res = await fetch('http://localhost:5000/api/notes/folders', {
+      const res = await fetch(`${API_BASE}/api/notes/folders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name })
@@ -95,7 +96,7 @@ export const MyNotes = () => {
     }
     const title = prompt("Enter note title:") || "Untitled Note";
     try {
-      const res = await fetch('http://localhost:5000/api/notes/notes', {
+      const res = await fetch(`${API_BASE}/api/notes/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ title, content: "", folderId: activeFolderId })
@@ -111,7 +112,7 @@ export const MyNotes = () => {
     if (!newName || newName === currentName) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/notes/folders/${folderId}`, {
+      const res = await fetch(`${API_BASE}/api/notes/folders/${folderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newName })
@@ -127,7 +128,7 @@ export const MyNotes = () => {
   const handleDeleteFolder = async (folderId: string) => {
     if (!window.confirm("Are you sure? This will delete all notes inside this folder.")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/notes/folders/${folderId}`, {
+      const res = await fetch(`${API_BASE}/api/notes/folders/${folderId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -145,7 +146,7 @@ export const MyNotes = () => {
     e.stopPropagation();
     if (!window.confirm("Delete this note?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/notes/notes/${noteId}`, {
+      const res = await fetch(`${API_BASE}/api/notes/notes/${noteId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
