@@ -1,11 +1,27 @@
 import { Link as ScrollLink, scroller } from "react-scroll";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Phone, LogIn, Rocket, Star, BookOpen } from "lucide-react";
-import { useCallback } from "react";
+import { Home, Phone, LogIn, Rocket, Star, BookOpen,User,LogOut } from "lucide-react";
+import { useCallback,useState,useEffect } from "react";
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("username");
+    
+    setIsLoggedIn(!!token); // !! converts string to boolean (true if token exists)
+    if (user) setUsername(user);
+  }, [location]);
+  
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    setIsLoggedIn(false);
+    navigate("/"); 
+  };
 
   // helper for handling section navigation
   const handleNavClick = useCallback(
@@ -58,24 +74,42 @@ export const Navbar = () => {
           <span>Contact Us</span>
         </button>
 
-        <Link
-          to="/mynotes"
-          className="flex items-center space-x-2 hover:text-purple-300 cursor-pointer"
-        >
-          <BookOpen size={18} />
-          <span>My Notes</span>
-        </Link>
+        {/* Only show "My Notes" if logged in (Optional, but good UX) */}
+        {isLoggedIn && (
+          <Link to="/mynotes" className="flex items-center space-x-2 hover:text-purple-300 cursor-pointer">
+            <BookOpen size={18} />
+            <span>My Notes</span>
+          </Link>
+        )}
       </div>
 
       {/* Route Navigation Buttons */}
       <div className="flex items-center space-x-4">
-        <Link
-          to="/signin"
-          className="flex items-center border-3 border-purple-300 space-x-2 px-4 py-2 rounded-lg hover:bg-white/20 transition"
-        >
-          <LogIn className="text-purple-300" size={18} />
-          <span className="text-purple-300">Sign In</span>
-        </Link>
+        {isLoggedIn ? (
+          <div className="flex items-center gap-4">
+            {/* Display Username */}
+            <span className="hidden md:flex items-center gap-2 text-purple-200 text-sm">
+              <User size={16} />
+              Hi, {username}
+            </span>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center border-2 border-red-400/50 space-x-2 px-4 py-2 rounded-lg hover:bg-red-500/10 transition group"
+            >
+              <LogOut className="text-red-400 group-hover:text-red-300" size={18} />
+              <span className="text-red-400 group-hover:text-red-300">Logout</span>
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/signin"
+            className="flex items-center border-3 border-purple-300 space-x-2 px-4 py-2 rounded-lg hover:bg-white/20 transition"
+          >
+            <LogIn className="text-purple-300" size={18} />
+            <span className="text-purple-300">Sign In</span>
+          </Link>
+        )}
 
         <Link
           to="/get-started"
