@@ -44,7 +44,7 @@ export const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 z-50 flex items-center justify-between px-10 py-1 bg-white/10 backdrop-blur-md rounded-xl text-white shadow-md w-full">
       <div className="flex items-center ">
-        <img src="./logo.png" alt="logo" className="pr-3 h-15 w-15" />
+        <img src="/logo.png" alt="logo" className="pr-3 h-15 w-15" />
         <span className="text-2xl font-semibold font-serif ">Synapse Notes</span>
       </div>
 

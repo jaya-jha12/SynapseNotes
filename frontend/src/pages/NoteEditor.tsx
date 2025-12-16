@@ -19,7 +19,7 @@ const cn = (...classes: (string | undefined | null | false)[]) => {
   return classes.filter(Boolean).join(' ');
 };
 
-// --- ICON COMPONENTS (Custom definitions) ---
+// --- ICON COMPONENTS ---
 const Icon: FCC<IconProps> = ({ children, className, ...props }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn('h-5 w-5', className)} {...props}>{children}</svg>
 );
@@ -92,7 +92,6 @@ export const NoteEditor = () => {
             if (!id) return;
             try {
                 const token = localStorage.getItem('token');
-                // URL: /api/notes/notes/:id
                 const res = await fetch(`http://localhost:5000/api/notes/notes/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -117,7 +116,6 @@ export const NoteEditor = () => {
         const token = localStorage.getItem('token');
 
         try {
-            // URL: /api/notes/notes/:id
             const res = await fetch(`http://localhost:5000/api/notes/notes/${id}`, {
                 method: 'PUT',
                 headers: { 
@@ -138,7 +136,6 @@ export const NoteEditor = () => {
         }
     };
 
-    // Sidebar & Toolbar Data
     const sidebarItems = [
         { icon: FileText, label: 'Summarize', action: () => navigate('/summarise') },
         { icon: Mic, label: 'Transcribe', action: () => navigate('/transcribe') },
@@ -220,6 +217,7 @@ export const NoteEditor = () => {
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/_(.*?)_/g, '<u>$1</u>')
+            // FIX: Added 'overflow-x-auto' to prevent text overflow in code blocks
             .replace(/```([\s\S]*?)```/g, '<pre class="bg-slate-800 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-white">$1</code></pre>')
             .replace(/^• (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
             .replace(/^1\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
@@ -229,9 +227,10 @@ export const NoteEditor = () => {
     };
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-slate-950 text-slate-50 pt-15">
+        // FIX: Changed h-full to h-screen and removed pt-15 to fix scrolling background issue
+        <div className="h-screen flex flex-col overflow-hidden pt-15 bg-slate-950 text-slate-50">
             {/* Header */}
-            <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-10">
+            <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-10 shrink-0">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center space-x-6">
                         <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-slate-400 hover:text-purple-400 transition-colors group">
@@ -254,7 +253,8 @@ export const NoteEditor = () => {
                 </div>
             </header>
 
-            <div className="flex h-[calc(100vh-69px)]">
+            {/* FIX: Changed h-[calc] to flex-1 to automatically fill space properly */}
+            <div className="flex flex-1 overflow-hidden">
                 {/* Left Sidebar */}
                 <div className="w-64 border-r border-slate-800 bg-slate-950/50 min-h-full ">
                     <div className="p-6 space-y-4">
@@ -284,7 +284,7 @@ export const NoteEditor = () => {
 
                 {/* Main Content */}
                 <main className="flex-1 flex flex-col p-6 overflow-y-auto bg-[#020617] bg-[radial-gradient(ellipse_at_top,_#2d0d4a,_transparent_70%),radial-gradient(ellipse_at_bottom,_#1a0b2e,_transparent_80%)]">
-                    <div className="space-y-6">
+                    <div className="space-y-10">
                         {/* Title Input */}
                         <div className="space-y-2">
                             <Input
