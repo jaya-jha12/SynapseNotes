@@ -57,7 +57,7 @@ export const TranscribePage: React.FC = () => {
   const [statusText, setStatusText] = useState<string>("");
   const [userInput, setUserInput] = useState<string>('');
   const [isAiTyping, setIsAiTyping] = useState<boolean>(false);
-  
+
   const worker = useRef<Worker | null>(null);
   const navigate = useNavigate();
 
@@ -68,30 +68,41 @@ export const TranscribePage: React.FC = () => {
       const workerUrl = URL.createObjectURL(blob);
       worker.current = new Worker(workerUrl, { type: 'module' });
     }
-
     const onMessageReceived = (e: MessageEvent) => {
       const { status, output, progress, error } = e.data;
-      
+
       if (status === 'progress') {
         setStatusText(`AI Model working... ${Math.round(progress || 0)}%`);
-      } 
+      }
       else if (status === 'complete') {
-        // --- SAFEGUARD: Handle output format ---
-        const text = typeof output === 'string' ? output : output.text;
-        
-        console.log("Transcribed Text:", text); // DEBUG LOG
+        console.log("Raw Worker Output:", output); // Check console to see structure
 
+        // 1. Robustly extract text
+        let text = "";
+        if (typeof output === 'string') {
+          text = output;
+        } else if (Array.isArray(output)) {
+          text = output.map(chunk => chunk.text).join(' '); // Handle array chunks
+        } else if (output && output.text) {
+          text = output.text; // Handle single object
+        }
+
+        console.log("Cleaned Text:", text);
+
+        // 2. Check if text is valid BEFORE sending to backend
         if (!text || text.trim().length === 0) {
-            setMinutes("(No speech detected in audio file)");
-            setSummary("Could not generate summary because the audio file appeared to be silent.");
-            setView('results');
-            return;
+          setMinutes("(No speech detected in audio file)");
+          setSummary("Audio file appeared to be empty or silent.");
+          setStatusText("Finished (No Speech Detected)");
+          setView('results');
+          return; // STOP HERE. Do not call backend.
         }
 
         setMinutes(text);
         setStatusText("Generating Summary...");
         generateSummary(text);
-      } 
+        // --- FIX ENDS HERE ---
+      }
       else if (status === 'error') {
         console.error("Worker Error:", error);
         setStatusText("Transcription Failed: " + error);
@@ -104,31 +115,47 @@ export const TranscribePage: React.FC = () => {
 
   // 2. BACKEND SUMMARY CALL (With Better Error Handling)
   const generateSummary = async (text: string) => {
+    // 1. Get Token
+    const token = localStorage.getItem("token");
+
+    // 2. CHECK IF TOKEN EXISTS
+    if (!token) {
+      setStatusText("Authentication Error: You are not logged in.");
+      setSummary("Please log in to generate a summary.");
+      // Optional: Redirect to login
+      // navigate('/signin'); 
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
-      
-      console.log("Sending to backend:", { text }); // DEBUG LOG
+      console.log("Sending to backend:", { text });
 
       const response = await fetch('http://localhost:5000/api/ai/transcribe', {
         method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}` 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Send the token
         },
-        body: JSON.stringify({ text: text }) // Ensure key matches backend expectation
+        body: JSON.stringify({ text: text })
       });
 
       const data = await response.json();
-      
       if (response.ok) {
         setSummary(data.summary);
         setView('results');
       } else {
-         console.error("Backend Error Response:", data);
-         setStatusText(`Server Error: ${data.error || "Unknown error"}`);
-         // Still show results so user can see the transcript at least
-         setSummary("Failed to generate summary. Please check backend logs.");
-         setView('results');
+        console.error("Backend Error Response:", data);
+
+        // Handle Invalid Token specifically
+        if (data.error === "Invalid Token") {
+          setStatusText("Session Expired. Please log in again.");
+          localStorage.removeItem("token"); // Clear bad token
+        } else {
+          setStatusText(`Server Error: ${data.error}`);
+        }
+
+        setSummary("Failed to generate summary. " + (data.error || ""));
+        setView('results');
       }
     } catch (error) {
       console.error("Network Error:", error);
@@ -146,15 +173,15 @@ export const TranscribePage: React.FC = () => {
     setStatusText("Decoding Audio...");
 
     try {
-        const arrayBuffer = await file.arrayBuffer();
-        const audioContext = new AudioContext({ sampleRate: 16000 });
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        const audioData = audioBuffer.getChannelData(0);
-        
-        worker.current?.postMessage({ audio: audioData });
+      const arrayBuffer = await file.arrayBuffer();
+      const audioContext = new AudioContext({ sampleRate: 16000 });
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const audioData = audioBuffer.getChannelData(0);
+
+      worker.current?.postMessage({ audio: audioData });
     } catch (err) {
-        console.error("Audio Decoding Error:", err);
-        setStatusText("Failed to decode audio file.");
+      console.error("Audio Decoding Error:", err);
+      setStatusText("Failed to decode audio file.");
     }
   };
 
@@ -165,18 +192,18 @@ export const TranscribePage: React.FC = () => {
     setUserInput('');
     setIsAiTyping(true);
     try {
-        const token = localStorage.getItem("token");
-        const response = await fetch('http://localhost:5000/api/ai/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ context: minutes, message: userInput })
-        });
-        const data = await response.json();
-        setIsAiTyping(false);
-        setChatMessages(prev => [...prev, { sender: 'ai', text: response.ok ? data.reply : "Error: " + data.error }]);
+      const token = localStorage.getItem("token");
+      const response = await fetch('http://localhost:5000/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ context: minutes, message: userInput })
+      });
+      const data = await response.json();
+      setIsAiTyping(false);
+      setChatMessages(prev => [...prev, { sender: 'ai', text: response.ok ? data.reply : "Error: " + data.error }]);
     } catch (error) {
-        setIsAiTyping(false);
-        setChatMessages(prev => [...prev, { sender: 'ai', text: "Connection failed." }]);
+      setIsAiTyping(false);
+      setChatMessages(prev => [...prev, { sender: 'ai', text: "Connection failed." }]);
     }
   };
 
@@ -193,7 +220,7 @@ export const TranscribePage: React.FC = () => {
   // 4. RENDER
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#1e1b4b] to-[#0c0a09] items-center justify-center p-4 sm:p-6 text-white font-sans relative">
-      <button onClick={() => navigate(-1)} className="absolute top-6 left-6 flex items-center gap-2 text-white hover:text-purple-300 transition z-10">
+      <button onClick={() => navigate(-1)} className="absolute top-17 left-6 flex items-center gap-2 text-white hover:text-purple-300 transition z-10">
         <ArrowLeft className="w-8 h-8" />
         <span className="text-xl">Back</span>
       </button>
@@ -201,7 +228,7 @@ export const TranscribePage: React.FC = () => {
       {view === 'initial' && (
         <div className="w-full max-w-2xl text-center">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-4">AI Transcriber</h1>
-          <p className="text-purple-200 mb-8">Upload audio to transcribe (in-browser) & summarize.</p>
+          <p className="text-purple-200 mb-8">Upload audio to transcribe & summarize.</p>
           <div className="flex flex-col md:flex-row gap-6">
             <label className="flex-1 border-2 border-dashed border-purple-400 rounded-2xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-purple-950/30 transition">
               <Upload className="w-12 h-12 mb-3 text-purple-300" />
@@ -239,21 +266,21 @@ export const TranscribePage: React.FC = () => {
             <div className="w-full lg:w-3/5 flex flex-col bg-slate-900/50 border border-purple-600/30 rounded-2xl shadow-lg">
               <div className="flex border-b border-purple-600/30">
                 <button onClick={() => setActiveTab('summary')} className={`flex-1 p-4 font-semibold ${activeTab === 'summary' ? 'bg-purple-600/30' : ''}`}>
-                   <div className="flex items-center justify-center gap-2"><BookText className="w-4 h-4"/> AI Summary</div>
+                  <div className="flex items-center justify-center gap-2"><BookText className="w-4 h-4" /> AI Summary</div>
                 </button>
                 <button onClick={() => setActiveTab('minutes')} className={`flex-1 p-4 font-semibold ${activeTab === 'minutes' ? 'bg-purple-600/30' : ''}`}>
-                   <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4"/> Transcript</div>
+                  <div className="flex items-center justify-center gap-2"><Clock className="w-4 h-4" /> Transcript</div>
                 </button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <p className="text-purple-100 whitespace-pre-wrap leading-relaxed">
-                    {activeTab === 'summary' ? summary : minutes}
+                  {activeTab === 'summary' ? summary : minutes}
                 </p>
               </div>
             </div>
             <div className="w-full lg:w-2/5 flex flex-col bg-slate-900/50 border border-purple-600/30 rounded-2xl shadow-lg p-4">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <BotMessageSquare className="w-5 h-5 text-purple-400"/> Chat with Context
+                <BotMessageSquare className="w-5 h-5 text-purple-400" /> Chat with Context
               </h3>
               <div className="flex-1 overflow-y-auto space-y-3 p-2 bg-slate-950/40 rounded-lg min-h-[300px] max-h-[50vh]">
                 {chatMessages.map((msg, i) => (
