@@ -12,8 +12,8 @@ generator client {
 // 2. DATASOURCE (This is where the error was!)
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")   // <--- This line was missing
-  directUrl = env("DIRECT_URL")     // <--- This line is needed for migrations
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // 2. USER MODEL

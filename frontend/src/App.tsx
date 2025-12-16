@@ -21,7 +21,7 @@ function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/signin" element={<SignupSlider />} />
       <Route path="/mynotes" element={<MyNotes />} />
-      <Route path="/noteeditor" element={<NoteEditor />} />
+      <Route path="/editor/:id" element={<NoteEditor />} />
       <Route path="/summarise" element={<Summarise />} />
       <Route path="/transcribe" element={<TranscribePage/>} />
       <Route path="/image" element={<ImageToNotesPage/>} />
