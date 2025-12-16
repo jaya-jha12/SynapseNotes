@@ -9,19 +9,14 @@ import Groq from "groq-sdk";
 dotenv.config();
 const router = express.Router();
 
-// --- PDF LIBRARY SETUP ---
 const require = createRequire(import.meta.url);
 const pdfExtract = require('pdf-extraction'); 
-// -----------------------------
+
 
 const hf = new InferenceClient(process.env.HF_ACCESS_TOKEN);
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- HELPER: Direct API Call ---
-// --- HELPER: Direct API Call (FIXED) ---
 async function queryHuggingFace(model, buffer) {
-    // OLD URL (DEAD): https://api-inference.huggingface.co/models/...
-    // NEW URL (LIVE): https://router.huggingface.co/hf-inference/models/...
     
     const response = await fetch(`https://router.huggingface.co/hf-inference/models/${model}`, {
         headers: {
@@ -51,7 +46,6 @@ router.post('/summarize', verifyToken, upload.single('file'), async (req, res) =
             if (req.file.mimetype === 'application/pdf') {
                 const data = await pdfExtract(req.file.buffer);
                 textToSummarize = data.text;
-                console.log("Original PDF Length:", textToSummarize.length);
             } else {
                 textToSummarize = req.file.buffer.toString('utf-8');
             }
@@ -61,28 +55,37 @@ router.post('/summarize', verifyToken, upload.single('file'), async (req, res) =
             return res.status(400).json({ error: "Text is too short or empty." });
         }
 
-        const maxLength = 3000;
+        const maxLength = 12000; // Qwen can handle more context!
         if (textToSummarize.length > maxLength) {
-            console.log(`Truncating text from ${textToSummarize.length} to ${maxLength} chars...`);
+            console.log(`Truncating text...`);
             textToSummarize = textToSummarize.slice(0, maxLength);
         }
 
         const result = await hf.chatCompletion({
-            model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+            model: 'Qwen/Qwen2.5-72B-Instruct',
             messages: [
-                { role: "system", content: "You are a helpful assistant. Summarize the user's document in clear bullet points." },
-                { role: "user", content: `Please summarize this document:\n\n${textToSummarize}` }
+                { role: "system", content: "You are a helpful expert. Summarize the following document in clear, structured bullet points. Capture all key details." },
+                { role: "user", content: textToSummarize }
             ],
-            max_tokens: 500,
-            temperature: 0.5,
-            provider: "hf-inference"
+            max_tokens: 1000, // Increased for better summaries
+            temperature: 0.5
         });
 
         res.json({ summary: result.choices[0].message.content });
 
     } catch (error) {
         console.error("Summarize Error:", error);
-        res.status(500).json({ error: "Failed to summarize text." });
+        // Fallback to a simpler model if Qwen is busy
+        try {
+             const fallback = await hf.summarization({
+                model: 'sshleifer/distilbart-cnn-12-6',
+                inputs: req.body.text || "Text unavailable",
+                parameters: { max_length: 200 }
+             });
+             res.json({ summary: fallback.summary_text });
+        } catch (fallbackError) {
+             res.status(500).json({ error: "Failed to summarize. Service is busy." });
+        }
     }
 });
 

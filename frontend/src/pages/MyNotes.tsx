@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Folder, FileText, Clock, Plus, Loader2, Trash2, MoreVertical, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+
 // --- TYPES ---
 type FolderType = {
   id: string;
@@ -25,7 +26,7 @@ export const MyNotes = () => {
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // [NEW] Track which folder menu is open
+  // Track which folder menu is open
   const [openMenuFolderId, setOpenMenuFolderId] = useState<string | null>(null);
 
   const token = localStorage.getItem('token');
