@@ -10,30 +10,46 @@ import { Toaster } from "react-hot-toast";
 import { Summarise } from './pages/Summarise';
 import { TranscribePage } from './pages/Transcribe';
 import { ImageToNotesPage } from './pages/Image';
-import { supabase } from './supabaseClient'; 
-import {type Session} from '@supabase/supabase-js';
+import { supabase } from './supabaseClient';
+import { type Session } from '@supabase/supabase-js';
 
 function App() {
 
   useEffect(() => {
-    // 1. Check active session
-    // Explicitly type 'session' as Session | null
+    // Helper function to handle session data and update UI
+    const handleSession = (session: Session) => {
+      localStorage.setItem('token', session.access_token);
+
+      // 1. Extract Name from Google Metadata
+      const user = session.user;
+      const name = user.user_metadata.full_name || user.user_metadata.name || user.email?.split('@')[0];
+      
+      if (name) {
+        localStorage.setItem('username', name);
+      }
+
+      // 2. Trigger Navbar Update
+      window.dispatchEvent(new Event("auth-change"));
+    };
+
+    // --- A. Check active session on load ---
     supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       if (session) {
-        localStorage.setItem('token', session.access_token);
+        handleSession(session);
       }
     });
 
-    // 2. Listen for auth changes
+    // --- B. Listen for auth changes (Login, Logout, Auto-Refresh) ---
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => { // Added types here
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       if (session) {
-        localStorage.setItem('token', session.access_token);
-        // ... rest of your logic
+        handleSession(session);
       } else {
+        // Logout cleanup
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        window.dispatchEvent(new Event("auth-change"));
       }
     });
 
