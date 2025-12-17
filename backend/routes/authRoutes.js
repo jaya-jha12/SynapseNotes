@@ -135,4 +135,52 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/google-sync', async (req, res) => {
+    const { email, username } = req.body;
+
+    try {
+        // 1. Check if user exists by Email
+        let user = await prisma.user.findUnique({
+            where: { email: email }
+        });
+
+        let isNewUser = false;
+
+        // 2. If not found, create them automatically
+        if (!user) {
+            isNewUser = true;
+            // Create a secure random password since they won't use it
+            const dummyPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    username, // Use the name from Google
+                    password: dummyPassword
+                }
+            });
+        }
+
+        // 3. Generate Backend Token (Crucial for your middleware)
+        const token = jwt.sign(
+            { id: user.id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' } // Longer session for OAuth
+        );
+
+        // 4. Return success
+        res.json({
+            success: true,
+            token,
+            username: user.username,
+            userId: user.id,
+            isNewUser
+        });
+
+    } catch (error) {
+        console.error("Google Sync Error:", error);
+        res.status(500).json({ error: "Failed to sync Google user with database" });
+    }
+});
+
 export default router;
