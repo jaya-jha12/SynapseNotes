@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { z } from 'zod'; 
+import { z } from 'zod';
 import prisma from '../prisma/client.js';
 
 dotenv.config();
@@ -25,17 +25,17 @@ const loginSchema = z.object({
 
 router.post('/register', async (req, res) => {
     try {
-        
+
         // safeParse checks the body without crashing
         const validation = registerSchema.safeParse(req.body);
 
         if (!validation.success) {
             // FIX: Use .issues instead of .errors
-            return res.status(400).json({ 
-                error: validation.error.issues[0].message 
+            return res.status(400).json({
+                error: validation.error.issues[0].message
             });
         }
-        
+
         // If valid, get the clean data
         const { username, email, password } = validation.data;
 
@@ -68,15 +68,15 @@ router.post('/register', async (req, res) => {
 
         // Generate Token
         const token = jwt.sign(
-            { id: newUser.id, username: newUser.username }, 
+            { id: newUser.id, username: newUser.username },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
 
-        res.status(201).json({ 
-            token, 
-            username: newUser.username, 
-            message: "User registered successfully" 
+        res.status(201).json({
+            token,
+            username: newUser.username,
+            message: "User registered successfully"
         });
 
     } catch (error) {
@@ -92,8 +92,8 @@ router.post('/login', async (req, res) => {
 
         if (!validation.success) {
             // FIX: Use .issues instead of .errors
-            return res.status(400).json({ 
-                error: validation.error.issues[0].message 
+            return res.status(400).json({
+                error: validation.error.issues[0].message
             });
         }
 
@@ -118,15 +118,15 @@ router.post('/login', async (req, res) => {
 
         // Generate Token
         const token = jwt.sign(
-            { id: user.id, username: user.username }, 
+            { id: user.id, username: user.username },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
 
-        res.json({ 
-            token, 
-            username: user.username, 
-            message: "Logged in successfully" 
+        res.json({
+            token,
+            username: user.username,
+            message: "Logged in successfully"
         });
 
     } catch (error) {
@@ -136,49 +136,49 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/google-sync', async (req, res) => {
-    let { email, username } = req.body; // use 'let' so we can modify username
-
     try {
-        // 1. Check if user exists by Email (Primary Check)
+        let { email, username } = req.body;
+
+        // 2. Check if user exists by Email
         let user = await prisma.user.findUnique({
             where: { email: email }
         });
 
         let isNewUser = false;
 
-        // 2. If not found by email, we need to create them
+        // 3. If user doesn't exist, Create them
         if (!user) {
             isNewUser = true;
 
-            // Check if this username is already taken by someone else
-            let usernameCheck = await prisma.user.findUnique({
+            // --- COLLISION CHECK ---
+            // See if "Rahul" is already taken
+            const existingUsername = await prisma.user.findUnique({
                 where: { username: username }
             });
 
-            // If taken, append 4 random digits to make it unique
-            if (usernameCheck) {
-                const randomSuffix = Math.floor(1000 + Math.random() * 9000); // e.g., 4821
+            // If taken, change "Rahul" to "Rahul4821"
+            if (existingUsername) {
+                const randomSuffix = Math.floor(1000 + Math.random() * 9000);
                 username = `${username}${randomSuffix}`;
             }
-            // --- COLLISION CHECK END ---
 
-            // Create a secure dummy password
+            // Create user
             const dummyPassword = await bcrypt.hash(Math.random().toString(36), 10);
-            
+
             user = await prisma.user.create({
                 data: {
                     email,
-                    username, 
+                    username,
                     password: dummyPassword
                 }
             });
         }
 
-        // 3. Generate Backend Token
+        // 4. Generate Backend Token
         const token = jwt.sign(
             { id: user.id, username: user.username },
             process.env.JWT_SECRET,
-            { expiresIn: '7d' } 
+            { expiresIn: '7d' }
         );
 
         res.json({
@@ -191,7 +191,7 @@ router.post('/google-sync', async (req, res) => {
 
     } catch (error) {
         console.error("Google Sync Error:", error);
-        res.status(500).json({ error: "Failed to sync Google user with database" });
+        res.status(500).json({ error: "Failed to sync user with database" });
     }
 });
 
