@@ -136,39 +136,51 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/google-sync', async (req, res) => {
-    const { email, username } = req.body;
+    let { email, username } = req.body; // use 'let' so we can modify username
 
     try {
-        // 1. Check if user exists by Email
+        // 1. Check if user exists by Email (Primary Check)
         let user = await prisma.user.findUnique({
             where: { email: email }
         });
 
         let isNewUser = false;
 
-        // 2. If not found, create them automatically
+        // 2. If not found by email, we need to create them
         if (!user) {
             isNewUser = true;
-            // Create a secure random password since they won't use it
+
+            // Check if this username is already taken by someone else
+            let usernameCheck = await prisma.user.findUnique({
+                where: { username: username }
+            });
+
+            // If taken, append 4 random digits to make it unique
+            if (usernameCheck) {
+                const randomSuffix = Math.floor(1000 + Math.random() * 9000); // e.g., 4821
+                username = `${username}${randomSuffix}`;
+            }
+            // --- COLLISION CHECK END ---
+
+            // Create a secure dummy password
             const dummyPassword = await bcrypt.hash(Math.random().toString(36), 10);
             
             user = await prisma.user.create({
                 data: {
                     email,
-                    username, // Use the name from Google
+                    username, 
                     password: dummyPassword
                 }
             });
         }
 
-        // 3. Generate Backend Token (Crucial for your middleware)
+        // 3. Generate Backend Token
         const token = jwt.sign(
             { id: user.id, username: user.username },
             process.env.JWT_SECRET,
-            { expiresIn: '7d' } // Longer session for OAuth
+            { expiresIn: '7d' } 
         );
 
-        // 4. Return success
         res.json({
             success: true,
             token,
